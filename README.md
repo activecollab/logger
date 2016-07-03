@@ -39,7 +39,9 @@ Note that we set rotating file logging, where only past 7 days of logs are kept.
 
 `LoggerInterface::GRAYLOG` - Log messages are sent to Graylog2 server using GELF formatter. Additional arguments are Graylog2 server host and port. If they are skipped, 127.0.0.1 and are used:
 
+```php
 $logger = $factory->create('Active Collab', '1.0.0', 'development', LoggerInterface::LOG_FOR_DEBUG, LoggerInterface::GRAYLOG, 'graylog.company.com', 12201);
+```
 
 `LoggerInterface::BLACKHOLE` - Messages are not logged anywhere.
 
