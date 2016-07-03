@@ -11,12 +11,13 @@
 
 namespace ActiveCollab\Logger\Factory;
 
+use ActiveCollab\Logger\ExceptionSerializers\ExceptionSerializersInterface;
 use ActiveCollab\Logger\LoggerInterface;
 
 /**
  * @package ActiveCollab\Logger
  */
-interface FactoryInterface
+interface FactoryInterface extends ExceptionSerializersInterface
 {
     /**
      * Create and configure a new logger instance.

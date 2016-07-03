@@ -9,11 +9,16 @@
  * with this source code in the file LICENSE.
  */
 
+namespace ActiveCollab\Logger\Test;
+
 use ActiveCollab\Logger\AppRequest\CliRequest;
 use ActiveCollab\Logger\AppRequest\HttpRequest;
 use ActiveCollab\Logger\AppResponse\HttpResponse;
 use ActiveCollab\Logger\LoggerInterface;
 use ActiveCollab\Logger\Test\Base\TestCase;
+use ActiveCollab\Logger\Factory\Factory;
+use Zend\Diactoros\Response;
+use Zend\Diactoros\ServerRequest;
 
 /**
  * @package angie.tests
@@ -32,7 +37,7 @@ class LoggerTest extends TestCase
     {
         parent::setUp();
 
-        $factory = new \ActiveCollab\Logger\Factory\Factory();
+        $factory = new Factory();
 
         $this->logger = $factory->create('Active Collab', '1.0.0', 'development', LoggerInterface::LOG_FOR_DEBUG, LoggerInterface::BLACKHOLE);
         $this->assertCount(0, $this->logger->getBuffer());
@@ -126,7 +131,8 @@ class LoggerTest extends TestCase
      */
     public function testEnvArguments()
     {
-        $this->assertCount(5, $this->logger->getAppEnv()->getArguments());
+        $this->assertCount(4, $this->logger->getAppEnv()->getArguments());
+
         $this->assertEquals('Active Collab', $this->logger->getAppEnv()->getArguments()['app']);
         $this->assertEquals('1.0.0', $this->logger->getAppEnv()->getArguments()['ver']);
         $this->assertEquals('development', $this->logger->getAppEnv()->getArguments()['env']);
@@ -138,7 +144,7 @@ class LoggerTest extends TestCase
      */
     public function testEnvWithAdditionalArguments()
     {
-        $factory = new \ActiveCollab\Logger\Factory\Factory();
+        $factory = new Factory();
         $factory->setAdditionalEnvArguments([
             'account_id' => 123,
             'owner_email' => 'john.doe@example.com',
@@ -255,11 +261,11 @@ class LoggerTest extends TestCase
      */
     public function testRequestArguments()
     {
-        $this->logger->setAppRequest(new HttpRequest((new \Zend\Diactoros\ServerRequest([], [], '/projects', 'GET'))->withAttribute('session_id', 'xyz')->withAttribute('request_id', '123')));
+        $this->logger->setAppRequest(new HttpRequest((new ServerRequest([], [], '/projects', 'GET'))->withAttribute('session_id', 'xyz')->withAttribute('request_id', '123')));
 
-        $this->assertCount(2, $this->logger->getRequestArguments());
-        $this->assertEquals('xyz', $this->logger->getRequestArguments()['session_id']);
-        $this->assertEquals('123', $this->logger->getRequestArguments()['request_id']);
+        $this->assertCount(2, $this->logger->getAppRequestArguments());
+        $this->assertEquals('xyz', $this->logger->getAppRequestArguments()['session_id']);
+        $this->assertEquals('123', $this->logger->getAppRequestArguments()['request_id']);
     }
 
     /**
@@ -267,71 +273,12 @@ class LoggerTest extends TestCase
      */
     public function testAppResponse()
     {
-        $response = (new \Zend\Diactoros\Response())->withStatus(404, 'Not found');
+        $response = (new Response())->withStatus(404, 'Not found');
         $app_response = new HttpResponse($response);
 
         $this->assertCount(2, $app_response->getSummaryArguments());
         $this->assertEquals(404, $app_response->getSummaryArguments()['status_code']);
         $this->assertEquals('Not found', $app_response->getSummaryArguments()['reason_phrase']);
-    }
-
-    /**
-     * Test exception serialization.
-     */
-    public function testExceptionSerialization()
-    {
-        $first = new ParseError('This is a logic exception');
-        $second = new RuntimeException('Something is not working correctly', 123, $first);
-
-        $this->logger->error('Failed due to exception', [
-            'first' => 'argument',
-            'exception' => $second,
-        ]);
-
-        $this->assertCount(1, $this->logger->getBuffer());
-
-        $log_entry = $this->logger->getBuffer()[0];
-
-        $this->assertInternalType('array', $log_entry['context']['exception']);
-        $this->assertEquals('RuntimeException', $log_entry['context']['exception']['class']);
-        $this->assertEquals('Something is not working correctly', $log_entry['context']['exception']['message']);
-        $this->assertEquals(123, $log_entry['context']['exception']['code']);
-        $this->assertEquals(__FILE__, $log_entry['context']['exception']['file']);
-        $this->assertNotEmpty($log_entry['context']['exception']['trace']);
-
-        $this->assertInternalType('array', $log_entry['context']['exception']['previous']);
-        $this->assertEquals('ParseError', $log_entry['context']['exception']['previous']['class']);
-        $this->assertEquals('This is a logic exception', $log_entry['context']['exception']['previous']['message']);
-        $this->assertEquals(0, $log_entry['context']['exception']['previous']['code']);
-        $this->assertEquals(__FILE__, $log_entry['context']['exception']['previous']['file']);
-        $this->assertNotEmpty($log_entry['context']['exception']['previous']['line']);
-        $this->assertNotEmpty($log_entry['context']['exception']['previous']['trace']);
-        $this->assertNull($log_entry['context']['exception']['previous']['previous']);
-    }
-
-    /**
-     * Test if angie errors add extra data to the log.
-     */
-    public function testAngieErrorException()
-    {
-        $validation_error = new ValidationErrors();
-        $validation_error->addError('Something is not OK');
-        $validation_error->addError('Name is required', 'name');
-        $validation_error->addError('Name should be longer than 3 letters', 'name');
-        $validation_error->addError('Email is not a valid email address', 'email');
-
-        $this->logger->error('Client facing exception: ' . $validation_error->getMessage(), [
-            'exception' => $validation_error,
-        ]);
-
-        $this->assertCount(1, $this->logger->getBuffer());
-
-        $log_entry = $this->logger->getBuffer()[0];
-
-        $this->assertInternalType('array', $log_entry['context']['exception']);
-        $this->assertEquals(ValidationErrors::class, $log_entry['context']['exception']['class']);
-        $this->assertEquals($validation_error->getMessage(), $log_entry['context']['exception']['message']);
-        $this->assertArrayHasKey('angie_error_param_errors', $log_entry['context']['exception']);
     }
 
     /**

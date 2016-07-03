@@ -14,12 +14,13 @@ namespace ActiveCollab\Logger;
 use ActiveCollab\Logger\AppEnv\AppEnvInterface;
 use ActiveCollab\Logger\AppRequest\AppRequestInterface;
 use ActiveCollab\Logger\AppResponse\AppResponseInterface;
+use ActiveCollab\Logger\ExceptionSerializers\ExceptionSerializersInterface;
 use Psr\Log\LoggerInterface as PsrLoggerInterface;
 
 /**
  * @package ActiveCollab\Logger
  */
-interface LoggerInterface extends PsrLoggerInterface
+interface LoggerInterface extends PsrLoggerInterface, ExceptionSerializersInterface
 {
     const LOG_FOR_PRODUCTION = 200;
     const LOG_FOR_DEBUG = 100;
@@ -72,6 +73,13 @@ interface LoggerInterface extends PsrLoggerInterface
      * @return $this
      */
     public function &setAppRequest(AppRequestInterface $request);
+
+    /**
+     * Return array of arguments that are extracted from app request.
+     *
+     * @return array
+     */
+    public function getAppRequestArguments();
 
     /**
      * Get app response.

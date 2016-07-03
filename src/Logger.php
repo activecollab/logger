@@ -14,6 +14,7 @@ namespace ActiveCollab\Logger;
 use ActiveCollab\Logger\AppEnv\AppEnvInterface;
 use ActiveCollab\Logger\AppRequest\AppRequestInterface;
 use ActiveCollab\Logger\AppResponse\AppResponseInterface;
+use ActiveCollab\Logger\ExceptionSerializers\ExceptionSerializersTrait;
 use Exception;
 use Monolog\Logger as MonologLogger;
 use Throwable;
@@ -23,6 +24,8 @@ use Throwable;
  */
 class Logger implements LoggerInterface
 {
+    use ExceptionSerializersTrait;
+
     /**
      * @var MonologLogger
      */
@@ -158,6 +161,14 @@ class Logger implements LoggerInterface
     /**
      * {@inheritdoc}
      */
+    public function getAppRequestArguments()
+    {
+        return $this->request_arguments;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getAppResponse()
     {
         return $this->app_response;
@@ -243,7 +254,7 @@ class Logger implements LoggerInterface
     private function serializeContextArgument($argument_name, $value, array &$context)
     {
         if ($this->isException($value)) {
-            return $this->serializeException($value);
+            return $this->serializeException($argument_name, $value, $context);
         } elseif ($this->split_strings_in_chunks && is_string($value) && mb_strlen($value) > $this->split_strings_in_chunks) {
             do {
                 $parts[] = mb_substr($value, 0, $this->split_strings_in_chunks);
@@ -270,10 +281,12 @@ class Logger implements LoggerInterface
     }
 
     /**
+     * @param                      $argument_name
      * @param  Exception|Throwable $exception
+     * @param  array               $context
      * @return array
      */
-    private function serializeException($exception)
+    private function serializeException($argument_name, $exception, array &$context)
     {
         $result = [
             'class' => get_class($exception),
@@ -282,15 +295,12 @@ class Logger implements LoggerInterface
             'file' => $exception->getFile(),
             'line' => $exception->getLine(),
             'trace' => $exception->getTraceAsString(),
-            'previous' => $exception->getPrevious() ? $this->serializeException($exception->getPrevious()) : null,
+            'previous' => $exception->getPrevious() ? $this->serializeException("{$argument_name}_previous", $exception->getPrevious(), $context) : null,
         ];
 
-// @TODO Callback which can extend $result with extra information
-//if ($exception instanceof \Angie\Error) {
-//    foreach ($exception->getParams() as $k => $v) {
-//        $result["angie_error_param_{$k}"] = $v;
-//    }
-//}
+        foreach ($this->getExceptionSerializers() as $exception_serializer) {
+            call_user_func_array($exception_serializer, [$argument_name, $exception, &$context]);
+        }
 
         return $result;
     }

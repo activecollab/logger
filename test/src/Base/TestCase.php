@@ -23,4 +23,12 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
     {
         return TEST_DIR;
     }
+
+    /**
+     * @return string
+     */
+    protected function getTestLogsDir()
+    {
+        return $this->getTestDir() . '/logs';
+    }
 }

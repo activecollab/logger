@@ -25,7 +25,7 @@ class FactoryTest extends TestCase
      */
     public function testCreateCreatesLoggerInterfaceInstance()
     {
-        $this->assertInstanceOf(LoggerInterface::class, (new Factory())->create('Active Collab', '1.0', 'test', LoggerInterface::LOG_FOR_PRODUCTION, LoggerInterface::FILE, $this->getTestDir() . '/logs'));
+        $this->assertInstanceOf(LoggerInterface::class, (new Factory())->create('Active Collab', '1.0', 'test', LoggerInterface::LOG_FOR_PRODUCTION, LoggerInterface::FILE, $this->getTestLogsDir()));
     }
 
     /**
@@ -53,5 +53,39 @@ class FactoryTest extends TestCase
     public function testExceptionOnNonWritableLogDirPath()
     {
         (new Factory())->create('Active Collab', '1.0.0', 'development', LoggerInterface::LOG_FOR_DEBUG, LoggerInterface::FILE, 'unknown folder');
+    }
+
+    /**
+     * Test if additional env arguments propagate to logger.
+     */
+    public function testAppEnvArgumentsPropagateToLogger()
+    {
+        $factory = new Factory();
+        $factory->setAdditionalEnvArguments(['additional_test_key' => '2']);
+
+        $logger = $factory->create('Active Collab', '1.0.0', 'development', LoggerInterface::LOG_FOR_DEBUG, LoggerInterface::FILE, $this->getTestLogsDir());
+        $this->assertInstanceOf(LoggerInterface::class, $logger);
+
+        $this->assertArrayHasKey('additional_test_key', $logger->getAppEnv()->getArguments());
+    }
+
+    /**
+     * Test if exception serializers propagate to logger level.
+     */
+    public function testExceptionSerializersPropagateToLogger()
+    {
+        $factory = new Factory();
+        $this->assertCount(0, $factory->getExceptionSerializers());
+
+        $logger = $factory->create('Active Collab', '1.0.0', 'development', LoggerInterface::LOG_FOR_DEBUG, LoggerInterface::FILE, $this->getTestLogsDir());
+        $this->assertCount(0, $logger->getExceptionSerializers());
+
+        $factory->addExceptionSerializer(function () {});
+        $factory->addExceptionSerializer(function () {});
+
+        $this->assertCount(2, $factory->getExceptionSerializers());
+
+        $logger = $factory->create('Active Collab', '1.0.0', 'development', LoggerInterface::LOG_FOR_DEBUG, LoggerInterface::FILE, $this->getTestLogsDir());
+        $this->assertCount(2, $logger->getExceptionSerializers());
     }
 }

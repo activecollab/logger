@@ -60,7 +60,7 @@ class AppEnv implements AppEnvInterface
         return array_merge([
             'app' => $this->app_name,
             'ver' => $this->app_version,
-            'env' => $this->app_version,
+            'env' => $this->app_env,
             'sapi' => php_sapi_name(),
         ], $this->getAdditionalArguments());
     }

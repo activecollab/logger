@@ -12,6 +12,7 @@
 namespace ActiveCollab\Logger\Factory;
 
 use ActiveCollab\Logger\AppEnv\AppEnv;
+use ActiveCollab\Logger\ExceptionSerializers\ExceptionSerializersTrait;
 use ActiveCollab\Logger\Logger;
 use Gelf\Publisher;
 use Gelf\Transport\UdpTransport;
@@ -30,6 +31,8 @@ use RuntimeException;
  */
 class Factory implements FactoryInterface
 {
+    use ExceptionSerializersTrait;
+
     /**
      * {@inheritdoc}
      */
@@ -81,6 +84,9 @@ class Factory implements FactoryInterface
         $monolog_logger->pushHandler($handler);
 
         $logger = new Logger($monolog_logger, new AppEnv($app_name, $app_version, $app_env, $this->getAdditionalEvnArguments()));
+        foreach ($this->getExceptionSerializers() as $exception_serializer) {
+            $logger->addExceptionSerializer($exception_serializer);
+        }
 
         if ($split_strings_in_chunks) {
             $logger->setSplitStringsInChunks($split_strings_in_chunks);
