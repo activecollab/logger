@@ -21,7 +21,7 @@ class CliRequest implements AppRequestInterface
     /**
      * @var string
      */
-    private $instance_id;
+    private $session_id;
 
     /**
      * @var array
@@ -44,12 +44,12 @@ class CliRequest implements AppRequestInterface
     private $timestamp;
 
     /**
-     * @param int   $instance_id
-     * @param array $all_command_arguments
+     * @param string $session_id
+     * @param array  $all_command_arguments
      */
-    public function __construct($instance_id, $all_command_arguments)
+    public function __construct($session_id, $all_command_arguments)
     {
-        $this->instance_id = (string) $instance_id;
+        $this->session_id = (string) $session_id;
         $this->all_command_arguments = array_values($all_command_arguments);
 
         $command_index_at = null;
@@ -78,7 +78,7 @@ class CliRequest implements AppRequestInterface
      */
     public function getSessionId()
     {
-        return $this->instance_id;
+        return $this->session_id;
     }
 
     /**

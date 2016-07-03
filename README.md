@@ -13,9 +13,14 @@ Once logger is set, you can use it like any other PSR-3 logger:
 
 ```php
 $logger->info('Something interesting happened: {what}', [
-    'what' => 'something really interesting'
+    'what' => 'really interesting event'
 ]);
 ```
+
+Special loggers are:
+
+1. Event logging using `LoggerInterface::event()` method. This will log a named event on info level, and set event context attribute to event name,
+1. Request summary logging using `LoggerInterface::requestSummary()` method. This will log some interesting request data, like executing time, total queries and query count etc.
 
 ## Message Buffering
 
@@ -26,11 +31,79 @@ Logger is built to buffer messages until request details are set (using `setAppR
 $logger->setAppRequest(new \ActiveCollab\Logger\AppRequest\HttpRequest($request));
 
 // Set CLI request from arguments
-$logger->setAppRequest(new \ActiveCollab\Logger\AppRequest\CliRequest($_SERVER['argv']));
+$logger->setAppRequest(new \ActiveCollab\Logger\AppRequest\CliRequest('session ID', $_SERVER['argv']));
 ```
 
 If request is not set, buffer will not be flushed unless you flush it yourself, or register a shutdown function:
 
 ```php
 $logger->flushBufferOnShutdown();
+```
+
+## Application Details
+
+This package always logs application name, version and environemnt. These arguments are required and they need to be provided to `FactoryInterface::create()` method, when creating new logger instance:
+
+```php
+$logger = $factory->create('Active Collab', '1.0.0', 'development', LoggerInterface::LOG_FOR_DEBUG, LoggerInterface::FILE, '/path/to/logs/dir');
+```
+
+Environment arguments are sent as context arguments with all messages captured via logger instance. User can specify additional environment arguments, using `FactoryInterface::setAdditionalEnvArguments()` method:
+
+```php
+// Additional environment arguments can be set on factory level, and factory will pass them to all loggers that it produces
+$factory->setAdditionalEnvArguments([
+    'account_id' => 123,
+    'extra_argument' => 'with extra value',
+]);
+
+// Or you can specify them on logger level
+$logger->setAdditionalEnvArguments([
+    'account_id' => 123,
+    'extra_argument' => 'with extra value',
+]);
+```
+
+## Exception Serialization
+
+When exceptions are passed as context arguments, package will "explode" them to a group of relevant arguments: message, file, line, code, and trace. Previous exception is also extracted, when available:
+
+```php
+try {
+    // Something risky
+} catch (ExceptioN $e) {
+    $logger->error('An {exception} happened :(', [
+        'exception' => $e,
+    ]);
+}
+```
+
+If you have special exceptions that collect more info than message, code, file, line, trace and previous, you can register a callback that will extract that data as well:
+
+```php
+$logger->addExceptionSerializer(function ($argument_name, $exception, array &$context) {
+    if ($exception instanceof \SpecialError) {
+        foreach ($exception->getParams() as $k => $v) {
+            $context["{$argument_name}_extra_param_{$k}"] = $v;
+        }
+    }
+});
+```
+
+Callback gets three arguments:
+
+1. `$argument_name` - contenxt argument name under which we found the exception,
+1. `$exception_name` - exception itself,
+1. `$context` - access to resulting log message context arguments.
+
+As with additional environment variables, exception serializers can be added to factory, and factory will pass it on to all loggers that it produces:
+
+```php
+$factory->addExceptionSerializer(function ($argument_name, $exception, array &$context) {
+    if ($exception instanceof \SpecialError) {
+        foreach ($exception->getParams() as $k => $v) {
+            $context["{$argument_name}_extra_param_{$k}"] = $v;
+        }
+    }
+});
 ```

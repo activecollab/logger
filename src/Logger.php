@@ -334,6 +334,34 @@ class Logger implements LoggerInterface
     }
 
     // ---------------------------------------------------
+    //  Special loggers
+    // ---------------------------------------------------
+
+    /**
+     * {@inheritdoc}
+     */
+    public function requestSummary($exec_time_in_s, $memory_usage, $query_count, $query_exec_time)
+    {
+        $event_name = $this->env_arguments['sapi'] == 'cli' ? 'cli_request' : 'http_request';
+
+        $this->event($event_name, 'Request {signature} done in {exec_time} miliseconds', array_merge($this->request_summary_arguments, $this->response_summary_arguments, [
+            'signature' => $this->request_signature,
+            'exec_time' => $exec_time_in_s > 0 ? ceil($exec_time_in_s * 1000) : 0, // Log execution time in ms
+            'memory_usage' => $memory_usage,
+            'query_count' => $query_count,
+            'query_time' => $query_exec_time,
+        ]));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function event($event_name, $message, array $context = [])
+    {
+        return $this->info($message, array_merge(['event' => $event_name], $context));
+    }
+
+    // ---------------------------------------------------
     //  Logger interface implementation
     // ---------------------------------------------------
 

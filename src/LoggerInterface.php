@@ -116,4 +116,24 @@ interface LoggerInterface extends PsrLoggerInterface, ExceptionSerializersInterf
      * Register shutdown function that will flush buffer.
      */
     public function flushBufferOnShutdown();
+
+    /**
+     * Log request summary once we shutdown the process.
+     *
+     * @param float $exec_time_in_s
+     * @param int   $memory_usage
+     * @param int   $query_count
+     * @param float $query_exec_time
+     */
+    public function requestSummary($exec_time_in_s, $memory_usage, $query_count, $query_exec_time);
+
+    /**
+     * Log an event (info with mandatory event attribute).
+     *
+     * @param  string    $event_name
+     * @param  string    $message
+     * @param  array     $context
+     * @return bool|null
+     */
+    public function event($event_name, $message, array $context = []);
 }
