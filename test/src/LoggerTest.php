@@ -313,4 +313,34 @@ class LoggerTest extends TestCase
         $this->assertArrayNotHasKey('long_arg_0', $this->logger->getBuffer()[0]['context']);
         $this->assertArrayNotHasKey('long_arg_5', $this->logger->getBuffer()[0]['context']);
     }
+
+    /**
+     * Test event logging.
+     */
+    public function testEventLogging()
+    {
+        $this->logger->event('task_created', 'This is a short message', [
+            'arg1' => 'Arg1',
+        ]);
+
+        $this->assertCount(1, $this->logger->getBuffer());
+        $this->assertEquals('task_created', $this->logger->getBuffer()[0]['context']['event']);
+    }
+
+    /**
+     * Test if request summaries are logged properly.
+     */
+    public function testRequestSummary()
+    {
+        $this->logger->requestSummary(0.356, 1024 * 1024, 15, 0.235);
+
+        $this->assertCount(1, $this->logger->getBuffer());
+
+        $this->assertEquals('Request {signature} done in {exec_time} miliseconds', $this->logger->getBuffer()[0]['message']);
+        $this->assertArrayHasKey('event', $this->logger->getBuffer()[0]['context']);
+        $this->assertEquals(356, $this->logger->getBuffer()[0]['context']['exec_time']);
+        $this->assertEquals(1048576, $this->logger->getBuffer()[0]['context']['memory_usage']);
+        $this->assertEquals(15, $this->logger->getBuffer()[0]['context']['query_count']);
+        $this->assertEquals(235, $this->logger->getBuffer()[0]['context']['query_time']);
+    }
 }
