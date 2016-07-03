@@ -14,6 +14,7 @@ namespace ActiveCollab\Logger\Factory;
 use ActiveCollab\Logger\AppEnv\AppEnv;
 use ActiveCollab\Logger\ExceptionSerializers\ExceptionSerializersTrait;
 use ActiveCollab\Logger\Logger;
+use ActiveCollab\Logger\LoggerInterface;
 use Gelf\Publisher;
 use Gelf\Transport\UdpTransport;
 use InvalidArgumentException;
@@ -45,9 +46,10 @@ class Factory implements FactoryInterface
         $split_strings_in_chunks = 0;
 
         switch ($logger_type) {
-            case 'file':
+            case LoggerInterface::FILE:
                 $log_dir = isset($logger_arguments[0]) && $logger_arguments[0] ? $logger_arguments[0] : '';
                 $log_file = empty($logger_arguments[1]) ? 'log.txt' : $logger_arguments[1];
+                $log_file_permissions = empty($logger_arguments[2]) ? 0644 : $logger_arguments[2];
 
                 if (empty($log_dir)) {
                     throw new InvalidArgumentException('Log directory argument is required');
@@ -57,10 +59,10 @@ class Factory implements FactoryInterface
                     throw new RuntimeException("We can't write logs to '$log_dir'");
                 }
 
-                $handler = new RotatingFileHandler("$log_dir/$log_file", 7, $log_level);
+                $handler = new RotatingFileHandler("$log_dir/$log_file", 7, $log_level, true, $log_file_permissions);
 
                 break;
-            case 'graylog':
+            case LoggerInterface::GRAYLOG:
                 $graylog_host = empty($logger_arguments[0]) ? UdpTransport::DEFAULT_HOST : $logger_arguments[0];
                 $graylog_port = empty($logger_arguments[1]) ? UdpTransport::DEFAULT_PORT : $logger_arguments[1];
 
@@ -71,7 +73,7 @@ class Factory implements FactoryInterface
                 $split_strings_in_chunks = 32766;
 
                 break;
-            case 'blackhole':
+            case LoggerInterface::BLACKHOLE:
                 $handler = new NullHandler($log_level);
                 break;
             default:

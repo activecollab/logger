@@ -22,6 +22,27 @@ Special loggers are:
 1. Event logging using `LoggerInterface::event()` method. This will log a named event on info level, and set event context attribute to event name,
 1. Request summary logging using `LoggerInterface::requestSummary()` method. This will log some interesting request data, like executing time, total queries and query count etc.
 
+## Loggers
+
+Packages comes with following backends implemented:
+
+`LoggerInterface::FILE` - Log to files in log directory. Log directory is required as first logger argument when creating a logger:
+
+```php
+$logger = $factory->create('Active Collab', '1.0.0', 'development', LoggerInterface::LOG_FOR_DEBUG, LoggerInterface::FILE, '/path/to/logs/dir', 'my-awesome-logs.txt', 0777);
+```
+
+Second argument is log file name, and it is optional. When skipped, system will log to `log.txt` file in the specified folder.
+Third argument is file permissions level. Default is 0644 when skipped, but you can specify any value (in octal notation).
+
+Note that we set rotating file logging, where only past 7 days of logs are kept.
+
+`LoggerInterface::GRAYLOG` - Log messages are sent to Graylog2 server using GELF formatter. Additional arguments are Graylog2 server host and port. If they are skipped, 127.0.0.1 and are used:
+
+$logger = $factory->create('Active Collab', '1.0.0', 'development', LoggerInterface::LOG_FOR_DEBUG, LoggerInterface::GRAYLOG, 'graylog.company.com', 12201);
+
+`LoggerInterface::BLACKHOLE` - Messages are not logged anywhere.
+
 ## Message Buffering
 
 Logger is built to buffer messages until request details are set (using `setAppRequest()` method). Reason why we delay writing to log is to be able to add request details to all messages, so we can connect the dots alter on:
