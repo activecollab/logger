@@ -111,4 +111,9 @@ interface LoggerInterface extends PsrLoggerInterface, ExceptionSerializersInterf
      * @param bool $force
      */
     public function flushBuffer($force = false);
+
+    /**
+     * Register shutdown function that will flush buffer.
+     */
+    public function flushBufferOnShutdown();
 }

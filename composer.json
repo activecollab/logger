@@ -16,14 +16,17 @@
     ],
     "require": {
         "php": ">=5.6.0",
-        "graylog2/gelf-php": "^1.4",
         "monolog/monolog": "^1.17",
         "psr/http-message": "^1.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^1.0",
+        "graylog2/gelf-php": "^1.4",
         "phpunit/phpunit": "^5.0",
         "zendframework/zend-diactoros": "^1.3"
+    },
+    "suggest": {
+        "graylog2/gelf-php": "Use when you want to log messages to Graylog2"
     },
     "autoload": {
         "psr-4": {

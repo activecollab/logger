@@ -209,6 +209,24 @@ class Logger implements LoggerInterface
     }
 
     /**
+     * @var bool
+     */
+    private $shutdown_function_registered = false;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function flushBufferOnShutdown()
+    {
+        if ($this->shutdown_function_registered) {
+            throw new \LogicException('Buffer flush function should be registered only once');
+
+        }
+        register_shutdown_function([$this, 'flushBuffer'], true);
+        $this->shutdown_function_registered = true;
+    }
+
+    /**
      * Add message to the buffer.
      *
      * @param  int    $level
