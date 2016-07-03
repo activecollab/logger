@@ -29,7 +29,7 @@ class ExceptionEncodingTest extends TestCase
     {
         $logger = $this->getLogger();
 
-        $first = new \ParseError('This is a logic exception');
+        $first = new \LogicException('This is a logic exception');
         $second = new \RuntimeException('Something is not working correctly', 123, $first);
 
         $logger->error('Failed due to exception', [
@@ -49,7 +49,7 @@ class ExceptionEncodingTest extends TestCase
         $this->assertNotEmpty($log_entry['context']['exception']['trace']);
 
         $this->assertInternalType('array', $log_entry['context']['exception']['previous']);
-        $this->assertEquals('ParseError', $log_entry['context']['exception']['previous']['class']);
+        $this->assertEquals('LogicException', $log_entry['context']['exception']['previous']['class']);
         $this->assertEquals('This is a logic exception', $log_entry['context']['exception']['previous']['message']);
         $this->assertEquals(0, $log_entry['context']['exception']['previous']['code']);
         $this->assertEquals(__FILE__, $log_entry['context']['exception']['previous']['file']);
