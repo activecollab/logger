@@ -281,6 +281,11 @@ class Logger implements LoggerInterface
     }
 
     /**
+     * @var int
+     */
+    private $exception_encoding_level = 1;
+
+    /**
      * @param                      $argument_name
      * @param  Exception|Throwable $exception
      * @param  array               $context
@@ -288,21 +293,26 @@ class Logger implements LoggerInterface
      */
     private function serializeException($argument_name, $exception, array &$context)
     {
-        $result = [
-            'class' => get_class($exception),
-            'message' => $exception->getMessage(),
-            'code' => $exception->getCode(),
-            'file' => $exception->getFile(),
-            'line' => $exception->getLine(),
-            'trace' => $exception->getTraceAsString(),
-            'previous' => $exception->getPrevious() ? $this->serializeException("{$argument_name}_previous", $exception->getPrevious(), $context) : null,
-        ];
+        $context[$argument_name] = $exception->getMessage(); // Reserve it as first key
+
+        $context["{$argument_name}_class"] = get_class($exception);
+        $context["{$argument_name}_code"] = $exception->getCode();
+        $context["{$argument_name}_file"] = $exception->getFile();
+        $context["{$argument_name}_line"] = $exception->getLine();
+        $context["{$argument_name}_trace"] = $exception->getTraceAsString();
+        $context["{$argument_name}_class"] = get_class($exception);
 
         foreach ($this->getExceptionSerializers() as $exception_serializer) {
             call_user_func_array($exception_serializer, [$argument_name, $exception, &$context]);
         }
 
-        return $result;
+        if ($exception->getPrevious() && $this->exception_encoding_level <= 3) {
+            $this->exception_encoding_level++;
+
+            $this->serializeException("{$argument_name}_previous", $exception->getPrevious(), $context);
+        }
+
+        return $exception->getMessage();
     }
 
     // ---------------------------------------------------

@@ -41,21 +41,20 @@ class ExceptionEncodingTest extends TestCase
 
         $log_entry = $logger->getBuffer()[0];
 
-        $this->assertInternalType('array', $log_entry['context']['exception']);
-        $this->assertEquals('RuntimeException', $log_entry['context']['exception']['class']);
-        $this->assertEquals('Something is not working correctly', $log_entry['context']['exception']['message']);
-        $this->assertEquals(123, $log_entry['context']['exception']['code']);
-        $this->assertEquals(__FILE__, $log_entry['context']['exception']['file']);
-        $this->assertNotEmpty($log_entry['context']['exception']['trace']);
+        $this->assertEquals('Something is not working correctly', $log_entry['context']['exception']);
+        $this->assertEquals('RuntimeException', $log_entry['context']['exception_class']);
 
-        $this->assertInternalType('array', $log_entry['context']['exception']['previous']);
-        $this->assertEquals('LogicException', $log_entry['context']['exception']['previous']['class']);
-        $this->assertEquals('This is a logic exception', $log_entry['context']['exception']['previous']['message']);
-        $this->assertEquals(0, $log_entry['context']['exception']['previous']['code']);
-        $this->assertEquals(__FILE__, $log_entry['context']['exception']['previous']['file']);
-        $this->assertNotEmpty($log_entry['context']['exception']['previous']['line']);
-        $this->assertNotEmpty($log_entry['context']['exception']['previous']['trace']);
-        $this->assertNull($log_entry['context']['exception']['previous']['previous']);
+        $this->assertEquals(123, $log_entry['context']['exception_code']);
+        $this->assertEquals(__FILE__, $log_entry['context']['exception_file']);
+        $this->assertNotEmpty($log_entry['context']['exception_trace']);
+
+        $this->assertEquals('This is a logic exception', $log_entry['context']['exception_previous']);
+        $this->assertEquals('LogicException', $log_entry['context']['exception_previous_class']);
+        $this->assertEquals(0, $log_entry['context']['exception_previous_code']);
+        $this->assertEquals(__FILE__, $log_entry['context']['exception_previous_file']);
+        $this->assertNotEmpty($log_entry['context']['exception_previous_line']);
+        $this->assertNotEmpty($log_entry['context']['exception_previous_trace']);
+        $this->assertArrayNotHasKey('exception_previous_previous', $log_entry['context']);
     }
 
     /**
@@ -83,9 +82,8 @@ class ExceptionEncodingTest extends TestCase
 
         $log_entry = $logger->getBuffer()[0];
 
-        $this->assertInternalType('array', $log_entry['context']['exception']);
-        $this->assertEquals(FileDnxError::class, $log_entry['context']['exception']['class']);
-        $this->assertEquals($validation_error->getMessage(), $log_entry['context']['exception']['message']);
+        $this->assertEquals($validation_error->getMessage(), $log_entry['context']['exception']);
+        $this->assertEquals(FileDnxError::class, $log_entry['context']['exception_class']);
         $this->assertArrayHasKey('exception_extra_param_path', $log_entry['context']);
     }
 
