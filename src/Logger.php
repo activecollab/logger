@@ -307,7 +307,7 @@ class Logger implements LoggerInterface
         }
 
         if ($exception->getPrevious() && $this->exception_encoding_level <= 3) {
-            $this->exception_encoding_level++;
+            ++$this->exception_encoding_level;
 
             $this->serializeException("{$argument_name}_previous", $exception->getPrevious(), $context);
         }

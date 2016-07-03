@@ -14,9 +14,9 @@ namespace ActiveCollab\Logger\Test;
 use ActiveCollab\Logger\AppRequest\CliRequest;
 use ActiveCollab\Logger\AppRequest\HttpRequest;
 use ActiveCollab\Logger\AppResponse\HttpResponse;
+use ActiveCollab\Logger\Factory\Factory;
 use ActiveCollab\Logger\LoggerInterface;
 use ActiveCollab\Logger\Test\Base\TestCase;
-use ActiveCollab\Logger\Factory\Factory;
 use Zend\Diactoros\Response;
 use Zend\Diactoros\ServerRequest;
 

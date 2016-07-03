@@ -29,7 +29,7 @@ class FileDnxError extends Error
         }
 
         parent::__construct($message, [
-            'path' => $file_path
+            'path' => $file_path,
         ]);
     }
 }

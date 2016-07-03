@@ -63,7 +63,7 @@ class ExceptionEncodingTest extends TestCase
     public function testAngieErrorException()
     {
         $logger = $this->getLogger(null, function (LoggerInterface &$logger) {
-            $logger->addExceptionSerializer(function($argument_name, $exception, array &$context) {
+            $logger->addExceptionSerializer(function ($argument_name, $exception, array &$context) {
                 if ($exception instanceof Error) {
                     foreach ($exception->getParams() as $k => $v) {
                         $context["{$argument_name}_extra_param_{$k}"] = $v;
