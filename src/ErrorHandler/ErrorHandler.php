@@ -14,6 +14,7 @@ namespace ActiveCollab\Logger\ErrorHandler;
 use ErrorException;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use InvalidArgumentException;
 
 /**
  * @package ActiveCollab\Logger\ErrorHandler
@@ -78,9 +79,27 @@ class ErrorHandler implements ErrorHandlerInterface
     /**
      * {@inheritdoc}
      */
-    public function howToHandleError($errno)
+    public function getHowToHandleError($errno)
     {
         return isset($this->how_to_handle_error[$errno]) && $this->how_to_handle_error[$errno] ? $this->how_to_handle_error[$errno] : null;
+    }
+
+    /**
+     * Set how errors of a given type should be handled.
+     *
+     * @param  int    $errno
+     * @param  string $how_to_handle
+     * @return $this
+     */
+    public function &setHowToHandleError($errno, $how_to_handle)
+    {
+        if (!in_array($how_to_handle, self::ALL_HANDLERS)) {
+            throw new InvalidArgumentException('Invalid error handler');
+        }
+
+        $this->how_to_handle_error[$errno] = $how_to_handle;
+
+        return $this;
     }
 
     /**
@@ -90,7 +109,9 @@ class ErrorHandler implements ErrorHandlerInterface
     {
         $context = ['message' => $errstr, 'code' => $errno, 'file' => $errfile, 'line' => $errline, 'trace' => (new RuntimeException('Getting trace'))->getTraceAsString()];
 
-        switch ($this->howToHandleError($errno)) {
+        switch ($this->getHowToHandleError($errno)) {
+            case self::SILENCE:
+                break;
             case self::LOG_ERROR:
                 $this->logger->error('Error: {message}', $context);
 

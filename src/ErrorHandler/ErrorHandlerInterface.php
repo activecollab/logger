@@ -23,6 +23,8 @@ interface ErrorHandlerInterface
     const LOG_NOTICE = 'log_notice';
     const THROW_EXCEPTION = 'exception';
 
+    const ALL_HANDLERS = [self::SILENCE, self::LOG_ERROR, self::LOG_NOTICE, self::THROW_EXCEPTION];
+
     /**
      * Set error and exception handlers.
      */
@@ -39,7 +41,16 @@ interface ErrorHandlerInterface
      * @param  int         $errno
      * @return string|null
      */
-    public function howToHandleError($errno);
+    public function getHowToHandleError($errno);
+
+    /**
+     * Set how errors of a given type should be handled.
+     *
+     * @param  int    $errno
+     * @param  string $how_to_handle
+     * @return $this
+     */
+    public function &setHowToHandleError($errno, $how_to_handle);
 
     /**
      * Handle PHP error.

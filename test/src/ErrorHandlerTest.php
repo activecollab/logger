@@ -75,7 +75,7 @@ class ErrorHandlerTest extends TestCase
      */
     public function testUserErrorLogsError()
     {
-        $this->assertEquals(ErrorHandlerInterface::LOG_ERROR, $this->error_handler->howToHandleError(E_USER_ERROR));
+        $this->assertEquals(ErrorHandlerInterface::LOG_ERROR, $this->error_handler->getHowToHandleError(E_USER_ERROR));
 
         $this->assertCount(0, $this->log_handler->getRecords());
         trigger_error('This is an error', E_USER_ERROR);
@@ -95,7 +95,7 @@ class ErrorHandlerTest extends TestCase
      */
     public function testWarningLogsError()
     {
-        $this->assertEquals(ErrorHandlerInterface::LOG_ERROR, $this->error_handler->howToHandleError(E_WARNING));
+        $this->assertEquals(ErrorHandlerInterface::LOG_ERROR, $this->error_handler->getHowToHandleError(E_WARNING));
 
         $this->assertCount(0, $this->log_handler->getRecords());
 
@@ -110,6 +110,27 @@ class ErrorHandlerTest extends TestCase
         $this->assertEquals(E_WARNING, $this->log_handler->getRecords()[0]['context']['code']);
         $this->assertEquals(__FILE__, $this->log_handler->getRecords()[0]['context']['file']);
         $this->assertNotEmpty($this->log_handler->getRecords()[0]['context']['line']);
+    }
+
+    /**
+     * Test if we can silence errors, even critical ones, like parse errors.
+     */
+    public function testSilenceAnError()
+    {
+        $this->error_handler->setHowToHandleError(E_USER_ERROR, ErrorHandlerInterface::SILENCE);
+        $this->assertEquals(ErrorHandlerInterface::SILENCE, $this->error_handler->getHowToHandleError(E_USER_ERROR));
+
+        $this->assertCount(0, $this->log_handler->getRecords());
+        trigger_error('This is an error', E_USER_ERROR);
+        $this->assertCount(0, $this->log_handler->getRecords());
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testSetHowToHandleErrorExceptionOnInvalidHandler()
+    {
+        $this->error_handler->setHowToHandleError(E_USER_ERROR, 'not valid');
     }
 
     /**
@@ -130,7 +151,7 @@ class ErrorHandlerTest extends TestCase
         $this->error_handler->setReThrowException(false);
         $this->assertFalse($this->error_handler->getReThrowException());
 
-        $this->assertEquals(ErrorHandlerInterface::THROW_EXCEPTION, $this->error_handler->howToHandleError(E_PARSE));
+        $this->assertEquals(ErrorHandlerInterface::THROW_EXCEPTION, $this->error_handler->getHowToHandleError(E_PARSE));
 
         $this->assertCount(0, $this->log_handler->getRecords());
 
