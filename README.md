@@ -130,3 +130,33 @@ $factory->addExceptionSerializer(function ($argument_name, $exception, array &$c
     }
 });
 ```
+
+## Error Handling
+
+Logger comes equiped with a class that can register error and exception handlers and direct them to the log. Quick setup:
+
+```php
+$handler = new ErrorHandler($logger);
+$handler->initialize();
+```
+
+To restore error and exception handled, simply call `restore()` method:
+
+```php
+$handler->restore();
+```
+
+Handler can be configured to do different things for diffent error levels. For example, you can configure it to throw an exception on PHP warning, or to silence an event all together:
+
+```php
+$handler->setHowToHandleError(E_STRICT, ErrorHandlerInterface::SILENCE);
+$handler->setHowToHandleError(E_DEPRECATED, ErrorHandlerInterface::LOG_NOTICE);
+$handler->setHowToHandleError(E_NOTICE, ErrorHandlerInterface::LOG_ERROR);
+$handler->setHowToHandleError(E_USER_ERROR, ErrorHandlerInterface::THROW_EXCEPTION);
+```
+
+By default, exceptions are logged and re-thrown. This behavior can be turned off:
+
+```php
+$handler->setReThrowException(false);
+```

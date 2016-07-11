@@ -56,7 +56,7 @@ class ErrorHandlerTest extends TestCase
         $this->log_handler = (new TestHandler())->setFormatter($this->log_formatter);
         $this->log = (new Logger('Active Collab Test'))->pushHandler($this->log_handler);
 
-        $this->error_handler = new ErrorHandler($this->log, false);
+        $this->error_handler = new ErrorHandler($this->log);
         $this->error_handler->initialize();
     }
 
