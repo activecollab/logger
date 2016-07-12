@@ -27,13 +27,17 @@ interface ErrorHandlerInterface
 
     /**
      * Set error and exception handlers.
+     *
+     * @return $this
      */
-    public function initialize();
+    public function &initialize();
 
     /**
      * Retore error handlers to the previous handlers.
+     *
+     * @return $this
      */
-    public function restore();
+    public function &restore();
 
     /**
      * Return how is error handler configured to handle a particular error.

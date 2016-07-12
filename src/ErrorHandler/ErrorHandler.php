@@ -61,19 +61,23 @@ class ErrorHandler implements ErrorHandlerInterface
     /**
      * {@inheritdoc}
      */
-    public function initialize()
+    public function &initialize()
     {
         set_error_handler([$this, 'handleError']);
         set_exception_handler([$this, 'handleException']);
+
+        return $this;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function restore()
+    public function &restore()
     {
         restore_error_handler();
         restore_exception_handler();
+
+        return $this;
     }
 
     /**
