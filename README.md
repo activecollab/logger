@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/activecollab/logger.svg?branch=master)](https://travis-ci.org/activecollab/logger)
 
-This pakcage implements some of our internal conventions on top of PSR-3. Logger that it publishes is fully PSR-3 comptabile with some extra functionality (optional), as well as a factory that makes logger creation easy:
+This package implements some of our internal conventions on top of PSR-3. Logger that it publishes is fully PSR-3 comptabile with some extra functionality (optional), as well as a factory that makes logger creation easy:
  
 ```php
 $factory = new LoggerFactory();
