@@ -267,7 +267,7 @@ class Logger implements LoggerInterface
      * @param  string $argument_name
      * @param  mixed  $value
      * @param  array  $context
-     * @return array
+     * @return string
      */
     private function serializeContextArgument($argument_name, $value, array &$context)
     {
@@ -307,7 +307,7 @@ class Logger implements LoggerInterface
      * @param                      $argument_name
      * @param  Exception|Throwable $exception
      * @param  array               $context
-     * @return array
+     * @return string
      */
     private function serializeException($argument_name, $exception, array &$context)
     {
