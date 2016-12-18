@@ -23,6 +23,7 @@ use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\GelfHandler;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\RotatingFileHandler;
+use Monolog\Handler\TestHandler;
 use Monolog\Logger as MonologLogger;
 use Monolog\Processor\PsrLogMessageProcessor;
 use RuntimeException;
@@ -75,6 +76,9 @@ class Factory implements FactoryInterface
                 break;
             case LoggerInterface::BLACKHOLE:
                 $handler = new NullHandler($log_level);
+                break;
+            case LoggerInterface::TEST:
+                $handler = new TestHandler();
                 break;
             default:
                 throw new InvalidArgumentException("Unknown logger type '$logger_type'");

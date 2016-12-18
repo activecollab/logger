@@ -28,6 +28,7 @@ interface LoggerInterface extends PsrLoggerInterface, ExceptionSerializersInterf
     const FILE = 'file';
     const GRAYLOG = 'graylog';
     const BLACKHOLE = 'blackhole';
+    const TEST = 'test';
 
     /**
      * Return split string to chunks length, if set.
