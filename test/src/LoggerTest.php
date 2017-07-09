@@ -39,7 +39,13 @@ class LoggerTest extends TestCase
 
         $factory = new Factory();
 
-        $this->logger = $factory->create('Active Collab', '1.0.0', 'development', LoggerInterface::LOG_FOR_DEBUG, LoggerInterface::BLACKHOLE);
+        $this->logger = $factory->create(
+            'Active Collab',
+            '1.0.0',
+            'development',
+            LoggerInterface::LOG_FOR_DEBUG,
+            LoggerInterface::BLACKHOLE
+        );
         $this->assertCount(0, $this->logger->getBuffer());
     }
 
@@ -48,7 +54,7 @@ class LoggerTest extends TestCase
      */
     public function testHttpRequestSignature()
     {
-        $request = new HttpRequest((new \Zend\Diactoros\ServerRequest([], [], '/projects', 'GET')));
+        $request = new HttpRequest((new ServerRequest([], [], '/projects', 'GET')));
         $this->assertEquals('GET /projects', $request->getSignature());
     }
 
@@ -57,7 +63,21 @@ class LoggerTest extends TestCase
      */
     public function testHttpRequestSignatureWithQueryString()
     {
-        $request = new HttpRequest((new \Zend\Diactoros\ServerRequest([], [], '/projects', 'GET', 'php://input', [], [], ['one' => 'two', 'three' => 'four'])));
+        $request = new HttpRequest(
+            (new ServerRequest(
+                [],
+                [],
+                '/projects',
+                'GET',
+                'php://input',
+                [],
+                [],
+                [
+                    'one' => 'two',
+                    'three' => 'four',
+                ]
+            ))
+        );
         $this->assertEquals('GET /projects?one=two&three=four', $request->getSignature());
     }
 
@@ -66,9 +86,20 @@ class LoggerTest extends TestCase
      */
     public function testHttpRequestSignatureWithLongQueryString()
     {
-        $request = new HttpRequest((new \Zend\Diactoros\ServerRequest([], [], '/projects/names', 'POST', 'php://input', [], [], [
-            'long_arg' => '2q04C111Zzuk8g6hi12a9w5A4l355TVp2q04C111Zzuk8g6hi12a9w5A4l355TVp',
-        ])));
+        $request = new HttpRequest(
+            (new ServerRequest(
+                [],
+                [],
+                '/projects/names',
+                'POST',
+                'php://input',
+                [],
+                [],
+                [
+                    'long_arg' => '2q04C111Zzuk8g6hi12a9w5A4l355TVp2q04C111Zzuk8g6hi12a9w5A4l355TVp',
+                ]
+            ))
+        );
         $this->assertEquals('POST /projects/names?long_arg=2q04C111Zzuk8g6hi12a9w5A4l355TVp2q04...', $request->getSignature());
     }
 
@@ -113,7 +144,15 @@ class LoggerTest extends TestCase
      */
     public function testActiveCollabCliRequestSignatureWithArguments()
     {
-        $request = new CliRequest(123, ['php', 'tasks/activecollab-cli.php', 'dev:new_migration', 'new feature']);
+        $request = new CliRequest(
+            123,
+            [
+                'php',
+                'tasks/activecollab-cli.php',
+                'dev:new_migration',
+                'new feature',
+            ]
+        );
         $this->assertEquals("~dev:new_migration 'new feature'", $request->getSignature());
     }
 
@@ -122,8 +161,36 @@ class LoggerTest extends TestCase
      */
     public function testActiveCollabCliRequestSignatureWithLongArguments()
     {
-        $request = new CliRequest(123, ['php', 'tasks/activecollab-cli.php', 'dev:new_migration', 'new feature', '-c', '2q04C111Zzuk8g6hi12a9w5A4l355TVp2q04C111Zzuk8g6hi12a9w5A4l355TVp']);
-        $this->assertEquals("~dev:new_migration 'new feature' -c 2q04C111Zzuk8g6hi12a9w5A4l35...", $request->getSignature());
+        $request = new CliRequest(
+            123,
+            [
+                'php',
+                'tasks/activecollab-cli.php',
+                'dev:new_migration',
+                'new feature',
+                '-c',
+                '2q04C111Zzuk8g6hi12a9w5A4l355TVp2q04C111Zzuk8g6hi12a9w5A4l355TVp',
+            ]
+        );
+        $this->assertEquals(
+            "~dev:new_migration 'new feature' -c 2q04C111Zzuk8g6hi12a9w5A4l35...",
+            $request->getSignature()
+        );
+    }
+
+    public function testCliRequestWithCustomScriptName()
+    {
+        $request = new CliRequest(
+            123,
+            [
+                'php',
+                'app/bin/shepherd.php',
+                'dev:new_migration',
+                'new feature'
+            ],
+            'shepherd.php'
+        );
+        $this->assertEquals("~dev:new_migration 'new feature'", $request->getSignature());
     }
 
     /**
@@ -150,7 +217,13 @@ class LoggerTest extends TestCase
             'owner_email' => 'john.doe@example.com',
         ]);
 
-        $logger = $factory->create('Active Collab', '1.0.0', 'development', LoggerInterface::LOG_FOR_DEBUG, LoggerInterface::BLACKHOLE);
+        $logger = $factory->create(
+            'Active Collab',
+            '1.0.0',
+            'development',
+            LoggerInterface::LOG_FOR_DEBUG,
+            LoggerInterface::BLACKHOLE
+        );
 
         $this->assertArrayHasKey('account_id', $logger->getAppEnv()->getArguments());
         $this->assertArrayHasKey('owner_email', $logger->getAppEnv()->getArguments());
@@ -211,10 +284,20 @@ class LoggerTest extends TestCase
 
         $this->assertCount(3, $this->logger->getBuffer());
 
-        $this->logger->setAppRequest(new HttpRequest(new \Zend\Diactoros\ServerRequest([], [], '/projects', 'GET')));
+        $this->logger->setAppRequest(
+            new HttpRequest(
+                new ServerRequest([], [], '/projects', 'GET')
+            )
+        );
         $this->assertCount(3, $this->logger->getBuffer());
 
-        $this->logger->setAppRequest(new HttpRequest((new \Zend\Diactoros\ServerRequest([], [], '/projects', 'GET'))->withAttribute('session_id', '')->withAttribute('request_id', '')));
+        $this->logger->setAppRequest(
+            new HttpRequest(
+                (new ServerRequest([], [], '/projects', 'GET'))
+                    ->withAttribute('session_id', '')
+                    ->withAttribute('request_id', '')
+            )
+        );
         $this->assertCount(3, $this->logger->getBuffer());
     }
 
@@ -229,7 +312,13 @@ class LoggerTest extends TestCase
 
         $this->assertCount(3, $this->logger->getBuffer());
 
-        $this->logger->setAppRequest(new HttpRequest((new \Zend\Diactoros\ServerRequest([], [], '/projects', 'GET'))->withAttribute('session_id', 123)->withAttribute('request_id', 321)));
+        $this->logger->setAppRequest(
+            new HttpRequest(
+                (new ServerRequest([], [], '/projects', 'GET'))
+                    ->withAttribute('session_id', 123)
+                    ->withAttribute('request_id', 321)
+            )
+        );
 
         $this->assertCount(0, $this->logger->getBuffer());
     }
@@ -245,7 +334,7 @@ class LoggerTest extends TestCase
 
         $this->assertCount(3, $this->logger->getBuffer());
 
-        $request = new \Zend\Diactoros\ServerRequest([], [], '/projects', 'GET');
+        $request = new ServerRequest([], [], '/projects', 'GET');
 
         $this->logger->setAppRequest(new HttpRequest($request));
         $this->assertCount(3, $this->logger->getBuffer());
@@ -261,7 +350,13 @@ class LoggerTest extends TestCase
      */
     public function testRequestArguments()
     {
-        $this->logger->setAppRequest(new HttpRequest((new ServerRequest([], [], '/projects', 'GET'))->withAttribute('session_id', 'xyz')->withAttribute('request_id', '123')));
+        $this->logger->setAppRequest(
+            new HttpRequest(
+                (new ServerRequest([], [], '/projects', 'GET'))
+                    ->withAttribute('session_id', 'xyz')
+                    ->withAttribute('request_id', '123'))
+
+        );
 
         $this->assertCount(2, $this->logger->getAppRequestArguments());
         $this->assertEquals('xyz', $this->logger->getAppRequestArguments()['session_id']);
@@ -332,11 +427,19 @@ class LoggerTest extends TestCase
      */
     public function testRequestSummary()
     {
-        $this->logger->requestSummary(0.356, 1024 * 1024, 15, 0.235);
+        $this->logger->requestSummary(
+            0.356,
+            1024 * 1024,
+            15,
+            0.235
+        );
 
         $this->assertCount(1, $this->logger->getBuffer());
 
-        $this->assertEquals('Request {signature} done in {exec_time} miliseconds', $this->logger->getBuffer()[0]['message']);
+        $this->assertEquals(
+            'Request {signature} done in {exec_time} miliseconds',
+            $this->logger->getBuffer()[0]['message']
+        );
         $this->assertArrayHasKey('event', $this->logger->getBuffer()[0]['context']);
         $this->assertEquals(356, $this->logger->getBuffer()[0]['context']['exec_time']);
         $this->assertEquals(1048576, $this->logger->getBuffer()[0]['context']['memory_usage']);

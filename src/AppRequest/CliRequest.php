@@ -46,8 +46,9 @@ class CliRequest implements AppRequestInterface
     /**
      * @param string $session_id
      * @param array  $all_command_arguments
+     * @param string $script_name
      */
-    public function __construct($session_id, $all_command_arguments)
+    public function __construct($session_id, $all_command_arguments, $script_name = 'activecollab-cli.php')
     {
         $this->session_id = (string) $session_id;
         $this->all_command_arguments = array_values($all_command_arguments);
@@ -56,7 +57,7 @@ class CliRequest implements AppRequestInterface
 
         foreach ($this->all_command_arguments as $k => $v) {
             if ($this->strEndsWith($v, '.php')) {
-                $command_index_at = $this->strEndsWith($v, 'activecollab-cli.php') ? $k + 1 : $k;
+                $command_index_at = $this->strEndsWith($v, $script_name) ? $k + 1 : $k;
                 break;
             }
         }
