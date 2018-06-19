@@ -66,7 +66,10 @@ class CliRequest implements AppRequestInterface
             throw new RuntimeException("Command '" . implode(' ', $all_command_arguments) . "' is not an Active Collab CLI command");
         }
 
-        $this->command = $this->all_command_arguments[$command_index_at];
+        $this->command = empty($this->all_command_arguments[$command_index_at])
+            ? 'list'
+            : $this->all_command_arguments[$command_index_at];
+
         $this->command_arguments = implode(' ', array_map(function ($command_argument) {
             return strpos($command_argument, ' ') === false ? $command_argument : escapeshellarg($command_argument);
         }, array_splice($this->all_command_arguments, $command_index_at + 1)));

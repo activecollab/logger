@@ -131,6 +131,15 @@ class LoggerTest extends TestCase
     }
 
     /**
+     * Test activecollab-cli.php CLI request signature when there's no explicit command (list should be default)
+     */
+    public function testActiveCollabCliRequestWithNoCommand()
+    {
+        $request = new CliRequest(123, ['php', 'tasks/activecollab-cli.php']);
+        $this->assertEquals('~list', $request->getSignature());
+    }
+
+    /**
      * Test activecollab-cli.php CLI request signature when CLI command has no extra arguments.
      */
     public function testActiveCollabCliRequestSignature()
