@@ -16,6 +16,8 @@ use ActiveCollab\Logger\LoggerInterface;
 use ActiveCollab\Logger\Test\Base\TestCase;
 use ActiveCollab\Logger\Test\Fixtures\Error\Error;
 use ActiveCollab\Logger\Test\Fixtures\Error\FileDnxError;
+use LogicException;
+use RuntimeException;
 
 /**
  * @package ActiveCollab\Logger\Test
@@ -29,8 +31,8 @@ class ExceptionEncodingTest extends TestCase
     {
         $logger = $this->getLogger();
 
-        $first = new \LogicException('This is a logic exception');
-        $second = new \RuntimeException('Something is not working correctly', 123, $first);
+        $first = new LogicException('This is a logic exception');
+        $second = new RuntimeException('Something is not working correctly', 123, $first);
 
         $logger->error('Failed due to exception', [
             'first' => 'argument',

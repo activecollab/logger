@@ -17,6 +17,7 @@ use ActiveCollab\Logger\AppResponse\HttpResponse;
 use ActiveCollab\Logger\Factory\Factory;
 use ActiveCollab\Logger\LoggerInterface;
 use ActiveCollab\Logger\Test\Base\TestCase;
+use RuntimeException;
 use Zend\Diactoros\Response;
 use Zend\Diactoros\ServerRequest;
 
@@ -33,7 +34,7 @@ class LoggerTest extends TestCase
     /**
      * {@inheritdoc}
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -103,12 +104,11 @@ class LoggerTest extends TestCase
         $this->assertEquals('POST /projects/names?long_arg=2q04C111Zzuk8g6hi12a9w5A4l355TVp2q04...', $request->getSignature());
     }
 
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Command 'php -S 0.0.0.0:8888 -t public public/.router-php-server' is not an Active Collab CLI command
-     */
     public function testExceptionOnInvalidPhpScriptCommand()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage("Command 'php -S 0.0.0.0:8888 -t public public/.router-php-server' is not an Active Collab CLI command");
+
         new CliRequest(123, ['php', '-S', '0.0.0.0:8888', '-t', 'public', 'public/.router-php-server']);
     }
 

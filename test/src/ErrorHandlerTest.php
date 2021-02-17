@@ -48,7 +48,7 @@ class ErrorHandlerTest extends TestCase
     /**
      * {@inheritdoc}
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -63,7 +63,7 @@ class ErrorHandlerTest extends TestCase
     /**
      * {@inheritdoc}
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->error_handler->restore();
 
@@ -106,7 +106,7 @@ class ErrorHandlerTest extends TestCase
         $this->assertCount(1, $this->log_handler->getRecords());
         $this->assertEquals('Error: {message}', $this->log_handler->getRecords()[0]['message']);
         $this->assertEquals(Logger::ERROR, $this->log_handler->getRecords()[0]['level']);
-        $this->assertContains('failed to open stream', $this->log_handler->getRecords()[0]['context']['message']);
+        $this->assertStringContainsString('failed to open stream', $this->log_handler->getRecords()[0]['context']['message']);
         $this->assertEquals(E_WARNING, $this->log_handler->getRecords()[0]['context']['code']);
         $this->assertEquals(__FILE__, $this->log_handler->getRecords()[0]['context']['file']);
         $this->assertNotEmpty($this->log_handler->getRecords()[0]['context']['line']);
@@ -125,20 +125,18 @@ class ErrorHandlerTest extends TestCase
         $this->assertCount(0, $this->log_handler->getRecords());
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testSetHowToHandleErrorExceptionOnInvalidHandler()
     {
+        $this->expectException(\InvalidArgumentException::class);
+
         $this->error_handler->setHowToHandleError(E_USER_ERROR, 'not valid');
     }
 
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Rethrow me
-     */
     public function testHandleExceptionReThrowsException()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage("Rethrow me");
+
         $this->assertTrue($this->error_handler->getReThrowException());
         $this->error_handler->handleException(new RuntimeException('Rethrow me'));
     }
@@ -166,7 +164,7 @@ class ErrorHandlerTest extends TestCase
 
         $this->assertEquals('Unhandled exception: {message}', $this->log_handler->getRecords()[0]['message']);
         $this->assertEquals(Logger::CRITICAL, $this->log_handler->getRecords()[0]['level']);
-        $this->assertContains('syntax error', $this->log_handler->getRecords()[0]['context']['message']);
+        $this->assertStringContainsString('syntax error', $this->log_handler->getRecords()[0]['context']['message']);
         $this->assertInstanceOf(Throwable::class, $this->log_handler->getRecords()[0]['context']['exception']);
     }
 

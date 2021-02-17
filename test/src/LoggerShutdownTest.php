@@ -26,12 +26,11 @@ use Zend\Diactoros\ServerRequest;
  */
 class LoggerShutdownTest extends TestCase
 {
-    /**
-     * @expectedException \LogicException
-     * @expectedExceptionMessage Buffer flush function should be registered only once
-     */
     public function testLogicExceptionOnMultiShutdownCalls()
     {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage("Buffer flush function should be registered only once");
+
         $logger = (new Factory())->create('Active Collab', '1.0.0', 'development', LoggerInterface::LOG_FOR_DEBUG, LoggerInterface::BLACKHOLE);
 
         $logger->flushBufferOnShutdown();

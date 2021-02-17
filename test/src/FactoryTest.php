@@ -14,6 +14,8 @@ namespace ActiveCollab\Logger\Test;
 use ActiveCollab\Logger\Factory\Factory;
 use ActiveCollab\Logger\LoggerInterface;
 use ActiveCollab\Logger\Test\Base\TestCase;
+use InvalidArgumentException;
+use RuntimeException;
 
 /**
  * @package ActiveCollab\Logger\Test
@@ -28,30 +30,27 @@ class FactoryTest extends TestCase
         $this->assertInstanceOf(LoggerInterface::class, (new Factory())->create('Active Collab', '1.0', 'test', LoggerInterface::LOG_FOR_PRODUCTION, LoggerInterface::FILE, $this->getTestLogsDir()));
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Unknown logger type 'invalid logger'
-     */
     public function testExceptionOnInvalidLoggerType()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("Unknown logger type 'invalid logger'");
+
         (new Factory())->create('Active Collab', '1.0.0', 'development', LoggerInterface::LOG_FOR_DEBUG, 'invalid logger');
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Log directory argument is required
-     */
     public function testExceptionOnEmptyLogDirPath()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("Log directory argument is required");
+
         (new Factory())->create('Active Collab', '1.0.0', 'development', LoggerInterface::LOG_FOR_DEBUG, LoggerInterface::FILE, '');
     }
 
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage We can't write logs to 'unknown folder'
-     */
     public function testExceptionOnNonWritableLogDirPath()
     {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage("We can't write logs to 'unknown folder'");
+
         (new Factory())->create('Active Collab', '1.0.0', 'development', LoggerInterface::LOG_FOR_DEBUG, LoggerInterface::FILE, 'unknown folder');
     }
 
