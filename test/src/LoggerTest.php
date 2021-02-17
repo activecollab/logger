@@ -440,7 +440,10 @@ class LoggerTest extends TestCase
             0.356,
             1024 * 1024,
             15,
-            0.235
+            0.235,
+            [
+                'first' => 'second'
+            ]
         );
 
         $this->assertCount(1, $this->logger->getBuffer());
@@ -454,5 +457,7 @@ class LoggerTest extends TestCase
         $this->assertEquals(1048576, $this->logger->getBuffer()[0]['context']['memory_usage']);
         $this->assertEquals(15, $this->logger->getBuffer()[0]['context']['query_count']);
         $this->assertEquals(235, $this->logger->getBuffer()[0]['context']['query_time']);
+        $this->assertArrayHasKey('first', $this->logger->getBuffer()[0]['context']);
+        $this->assertSame('second', $this->logger->getBuffer()[0]['context']['first']);
     }
 }

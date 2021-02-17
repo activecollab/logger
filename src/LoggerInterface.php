@@ -125,8 +125,9 @@ interface LoggerInterface extends PsrLoggerInterface, ExceptionSerializersInterf
      * @param int   $memory_usage
      * @param int   $query_count
      * @param float $query_exec_time
+     * @param array $extra
      */
-    public function requestSummary($exec_time_in_s, $memory_usage, $query_count, $query_exec_time);
+    public function requestSummary($exec_time_in_s, $memory_usage, $query_count, $query_exec_time, array $extra = []);
 
     /**
      * Log an event (info with mandatory event attribute).
