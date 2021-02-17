@@ -18,8 +18,8 @@ use ActiveCollab\Logger\Factory\Factory;
 use ActiveCollab\Logger\Factory\FactoryInterface;
 use ActiveCollab\Logger\LoggerInterface;
 use ActiveCollab\Logger\Test\Base\TestCase;
-use Zend\Diactoros\Response;
-use Zend\Diactoros\ServerRequest;
+use Laminas\Diactoros\Response;
+use Laminas\Diactoros\ServerRequest;
 
 /**
  * @package angie.tests
