@@ -146,11 +146,12 @@ class Logger implements LoggerInterface
         $this->request_signature = $request->getSignature();
         $this->request_summary_arguments = $request->getSummaryArguments();
 
-        if (!empty($request->getSessionId()) && !empty($request->getRequestId())) {
-            $this->request_arguments = [
-                'session_id' => $request->getSessionId(),
-                'request_id' => $request->getRequestId(),
-            ];
+        if (!empty($request->getSessionId())) {
+            $this->request_arguments['session_id'] = $request->getSessionId();
+        }
+
+        if (!empty($request->getRequestId())) {
+            $this->request_arguments['request_id'] = $request->getRequestId();
         }
 
         $this->flushBuffer();
@@ -201,7 +202,15 @@ class Logger implements LoggerInterface
     {
         if (!empty($this->request_arguments) || $force) {
             foreach ($this->buffer as $log_entry) {
-                $this->logger->log($log_entry['level'], $log_entry['message'], array_merge($this->env_arguments, $this->request_arguments, $log_entry['context']));
+                $this->logger->log(
+                    $log_entry['level'],
+                    $log_entry['message'],
+                    array_merge(
+                        $this->env_arguments,
+                        $this->request_arguments,
+                        $log_entry['context']
+                    )
+                );
             }
 
             $this->buffer = [];
