@@ -13,9 +13,6 @@ namespace ActiveCollab\Logger\AppRequest;
 
 use Psr\Http\Message\ServerRequestInterface;
 
-/**
- * @package Angie\AppRequest
- */
 class HttpRequest implements AppRequestInterface
 {
     /**
@@ -44,6 +41,11 @@ class HttpRequest implements AppRequestInterface
     private $request_id;
 
     /**
+     * @var string
+     */
+    private $user_id;
+
+    /**
      * @param ServerRequestInterface $request
      */
     public function __construct(ServerRequestInterface $request)
@@ -54,6 +56,7 @@ class HttpRequest implements AppRequestInterface
         $this->method = $request->getMethod();
         $this->session_id = (string) $request->getAttribute('session_id');
         $this->request_id = (string) $request->getAttribute('request_id');
+        $this->user_id = (string) $request->getAttribute('user_id');
     }
 
     /**
@@ -91,12 +94,21 @@ class HttpRequest implements AppRequestInterface
         return $this->request_id;
     }
 
+    public function getUserId()
+    {
+        return $this->user_id;
+    }
+
     /**
      * {@inheritdoc}
      */
     public function getSummaryArguments()
     {
-        return ['uri' => $this->uri_path, 'method' => $this->method, 'query_string' => $this->query_string];
+        return [
+            'uri' => $this->uri_path,
+            'method' => $this->method,
+            'query_string' => $this->query_string
+        ];
     }
 
     /**

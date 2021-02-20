@@ -13,9 +13,6 @@ namespace ActiveCollab\Logger\AppRequest;
 
 use RuntimeException;
 
-/**
- * @package Angie\AppRequest
- */
 class CliRequest implements AppRequestInterface
 {
     /**
@@ -91,6 +88,14 @@ class CliRequest implements AppRequestInterface
     public function getRequestId()
     {
         return "$this->command/$this->timestamp";
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getUserId()
+    {
+        return '';
     }
 
     /**

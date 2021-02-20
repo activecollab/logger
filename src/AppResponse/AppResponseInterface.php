@@ -11,9 +11,6 @@
 
 namespace ActiveCollab\Logger\AppResponse;
 
-/**
- * @package Angie\AppResponse
- */
 interface AppResponseInterface
 {
     /**

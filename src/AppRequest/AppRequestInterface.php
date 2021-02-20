@@ -11,9 +11,6 @@
 
 namespace ActiveCollab\Logger\AppRequest;
 
-/**
- * @package Angie\AppRequest
- */
 interface AppRequestInterface
 {
     /**
@@ -29,6 +26,13 @@ interface AppRequestInterface
      * @return string
      */
     public function getRequestId();
+
+    /**
+     * Return user ID.
+     *
+     * @return string
+     */
+    public function getUserId();
 
     /**
      * Return summary arguments.

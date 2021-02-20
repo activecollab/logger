@@ -13,9 +13,6 @@ namespace ActiveCollab\Logger\AppResponse;
 
 use Psr\Http\Message\ResponseInterface;
 
-/**
- * @package Angie\AppResponse
- */
 class HttpResponse implements AppResponseInterface
 {
     /**

@@ -11,25 +11,16 @@
 
 namespace ActiveCollab\Logger\Test;
 
-use ActiveCollab\Logger\AppRequest\CliRequest;
-use ActiveCollab\Logger\AppRequest\HttpRequest;
-use ActiveCollab\Logger\AppResponse\HttpResponse;
 use ActiveCollab\Logger\Factory\Factory;
-use ActiveCollab\Logger\Factory\FactoryInterface;
 use ActiveCollab\Logger\LoggerInterface;
 use ActiveCollab\Logger\Test\Base\TestCase;
-use Laminas\Diactoros\Response;
-use Laminas\Diactoros\ServerRequest;
 
-/**
- * @package angie.tests
- */
 class LoggerShutdownTest extends TestCase
 {
     public function testLogicExceptionOnMultiShutdownCalls()
     {
         $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage("Buffer flush function should be registered only once");
+        $this->expectExceptionMessage('Buffer flush function should be registered only once');
 
         $logger = (new Factory())->create('Active Collab', '1.0.0', 'development', LoggerInterface::LOG_FOR_DEBUG, LoggerInterface::BLACKHOLE);
 

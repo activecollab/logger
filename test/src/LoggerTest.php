@@ -21,9 +21,6 @@ use RuntimeException;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\ServerRequest;
 
-/**
- * @package angie.tests
- */
 class LoggerTest extends TestCase
 {
     /**
@@ -31,9 +28,6 @@ class LoggerTest extends TestCase
      */
     private $logger;
 
-    /**
-     * {@inheritdoc}
-     */
     public function setUp(): void
     {
         parent::setUp();

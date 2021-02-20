@@ -154,6 +154,10 @@ class Logger implements LoggerInterface
             $this->request_arguments['request_id'] = $request->getRequestId();
         }
 
+        if (!empty($request->getUserId())) {
+            $this->request_arguments['user_id'] = $request->getUserId();
+        }
+
         $this->flushBuffer();
 
         return $this;
