@@ -27,20 +27,6 @@ abstract class Error extends Exception implements JsonSerializable
     protected $message;
 
     /**
-     * Error line.
-     *
-     * @var int
-     */
-    protected $line;
-
-    /**
-     * Error file.
-     *
-     * @var string
-     */
-    protected $file;
-
-    /**
      * Additional error parameters.
      *
      * @var array
@@ -84,20 +70,18 @@ abstract class Error extends Exception implements JsonSerializable
         return $this->additional[$name];
     }
 
-    /**
-     * Return array or property => value pairs that describes this object.
-     *
-     * @return array
-     */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
-        return array_merge([
-            'type' => get_class($this),
-            'message' => $this->getMessage(),
-            'file' => $this->getFile(),
-            'line' => $this->getLine(),
-            'trace' => $this->getTraceAsString(),
-            'previous' => $this->getPrevious(),
-        ], $this->getParams());
+        return array_merge(
+            [
+                'type' => get_class($this),
+                'message' => $this->getMessage(),
+                'file' => $this->getFile(),
+                'line' => $this->getLine(),
+                'trace' => $this->getTraceAsString(),
+                'previous' => $this->getPrevious(),
+            ],
+            $this->getParams()
+        );
     }
 }

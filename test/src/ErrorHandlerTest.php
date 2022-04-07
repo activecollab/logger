@@ -106,7 +106,7 @@ class ErrorHandlerTest extends TestCase
         $this->assertCount(1, $this->log_handler->getRecords());
         $this->assertEquals('Error: {message}', $this->log_handler->getRecords()[0]['message']);
         $this->assertEquals(Logger::ERROR, $this->log_handler->getRecords()[0]['level']);
-        $this->assertStringContainsString('failed to open stream', $this->log_handler->getRecords()[0]['context']['message']);
+        $this->assertStringContainsString('Failed to open stream', $this->log_handler->getRecords()[0]['context']['message']);
         $this->assertEquals(E_WARNING, $this->log_handler->getRecords()[0]['context']['code']);
         $this->assertEquals(__FILE__, $this->log_handler->getRecords()[0]['context']['file']);
         $this->assertNotEmpty($this->log_handler->getRecords()[0]['context']['line']);
