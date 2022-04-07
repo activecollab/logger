@@ -1,12 +1,17 @@
 # Logger
 
-[![Build Status](https://travis-ci.org/activecollab/logger.svg?branch=master)](https://travis-ci.org/activecollab/logger)
-
 This package implements some of our internal conventions on top of PSR-3. Logger that it publishes is fully PSR-3 comptabile with some extra functionality (optional), as well as a factory that makes logger creation easy:
  
 ```php
 $factory = new LoggerFactory();
-$logger = $factory->create('Active Collab', '1.0.0', 'development', LoggerInterface::LOG_FOR_DEBUG, LoggerInterface::FILE, '/path/to/logs/dir');
+$logger = $factory->create(
+    'ActiveCollab', 
+    '1.0.0', 
+    'development', 
+    LoggerInterface::LOG_FOR_DEBUG, 
+    LoggerInterface::FILE, 
+    '/path/to/logs/dir'
+);
 ```
 
 Once logger is set, you can use it like any other PSR-3 logger:
@@ -29,7 +34,16 @@ Packages comes with following backends implemented:
 `LoggerInterface::FILE` - Log to files in log directory. Log directory is required as first logger argument when creating a logger:
 
 ```php
-$logger = $factory->create('Active Collab', '1.0.0', 'development', LoggerInterface::LOG_FOR_DEBUG, LoggerInterface::FILE, '/path/to/logs/dir', 'my-awesome-logs.txt', 0777);
+$logger = $factory->create(
+    'ActiveCollab', 
+    '1.0.0', 
+    'development', 
+    LoggerInterface::LOG_FOR_DEBUG, 
+    LoggerInterface::FILE, 
+    '/path/to/logs/dir', 
+    'my-awesome-logs.txt', 
+    0777
+);
 ```
 
 Second argument is log file name, and it is optional. When skipped, system will log to `log.txt` file in the specified folder.
@@ -40,7 +54,15 @@ Note that we set rotating file logging, where only past 7 days of logs are kept.
 `LoggerInterface::GRAYLOG` - Log messages are sent to Graylog2 server using GELF formatter. Additional arguments are Graylog2 server host and port. If they are skipped, 127.0.0.1 and are used:
 
 ```php
-$logger = $factory->create('Active Collab', '1.0.0', 'development', LoggerInterface::LOG_FOR_DEBUG, LoggerInterface::GRAYLOG, 'graylog.company.com', 12201);
+$logger = $factory->create(
+    'ActiveCollab', 
+    '1.0.0', 
+    'development', 
+    LoggerInterface::LOG_FOR_DEBUG, 
+    LoggerInterface::GRAYLOG, 
+    'graylog.company.com', 
+    12201
+);
 ```
 
 `LoggerInterface::BLACKHOLE` - Messages are not logged anywhere.
@@ -68,7 +90,7 @@ $logger->flushBufferOnShutdown();
 This package always logs application name, version and environemnt. These arguments are required and they need to be provided to `FactoryInterface::create()` method, when creating new logger instance:
 
 ```php
-$logger = $factory->create('Active Collab', '1.0.0', 'development', LoggerInterface::LOG_FOR_DEBUG, LoggerInterface::FILE, '/path/to/logs/dir');
+$logger = $factory->create('ActiveCollab', '1.0.0', 'development', LoggerInterface::LOG_FOR_DEBUG, LoggerInterface::FILE, '/path/to/logs/dir');
 ```
 
 Environment arguments are sent as context arguments with all messages captured via logger instance. User can specify additional environment arguments, using `FactoryInterface::setAdditionalEnvArguments()` method:
