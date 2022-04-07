@@ -9,6 +9,8 @@
  * with this source code in the file LICENSE.
  */
 
+declare(strict_types=1);
+
 namespace ActiveCollab\Logger\Factory;
 
 use ActiveCollab\Logger\AppEnv\AppEnv;
@@ -21,6 +23,7 @@ use InvalidArgumentException;
 use Monolog\Formatter\GelfMessageFormatter;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\GelfHandler;
+use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Handler\TestHandler;
@@ -28,23 +31,63 @@ use Monolog\Logger as MonologLogger;
 use Monolog\Processor\PsrLogMessageProcessor;
 use RuntimeException;
 
-/**
- * @package ActiveCollab\Logger
- */
 class Factory implements FactoryInterface
 {
     use ExceptionSerializersTrait;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function create($app_name, $app_version, $app_env, $log_level, $logger_type, ...$logger_arguments)
+    public function createWithHandlers(
+        string $app_name,
+        string $app_version,
+        string $app_env,
+        HandlerInterface ...$handlers
+    ): LoggerInterface
     {
         $monolog_logger = new MonologLogger($app_name);
 
-        $formatter = new LineFormatter("[%datetime%] %level_name%: %message% %context% %extra%\n", 'Y-m-d H:i:s');
-
         $split_strings_in_chunks = 0;
+
+        foreach ($handlers as $handler) {
+            $monolog_logger->pushHandler($handler);
+
+            if ($handler instanceof GelfHandler) {
+                $split_strings_in_chunks = 32766;
+            }
+        }
+
+        $logger = new Logger(
+            $monolog_logger,
+            new AppEnv(
+                $app_name,
+                $app_version,
+                $app_env,
+                $this->getAdditionalEnvArguments()
+            )
+        );
+
+        foreach ($this->getExceptionSerializers() as $exception_serializer) {
+            $logger->addExceptionSerializer($exception_serializer);
+        }
+
+        if ($split_strings_in_chunks) {
+            $logger->setSplitStringsInChunks($split_strings_in_chunks);
+        }
+
+        return $logger;
+    }
+
+    public function create(
+        string $app_name,
+        string $app_version,
+        string $app_env,
+        int $log_level,
+        string $logger_type,
+        ...$logger_arguments
+    ): LoggerInterface
+    {
+        $formatter = new LineFormatter(
+            "[%datetime%] %level_name%: %message% %context% %extra%\n",
+            'Y-m-d H:i:s'
+        );
 
         switch ($logger_type) {
             case LoggerInterface::FILE:
@@ -60,7 +103,13 @@ class Factory implements FactoryInterface
                     throw new RuntimeException("We can't write logs to '$log_dir'");
                 }
 
-                $handler = new RotatingFileHandler("$log_dir/$log_file", 7, $log_level, true, $log_file_permissions);
+                $handler = new RotatingFileHandler(
+                    "$log_dir/$log_file",
+                    7,
+                    $log_level,
+                    true,
+                    $log_file_permissions
+                );
 
                 break;
             case LoggerInterface::GRAYLOG:
@@ -70,8 +119,6 @@ class Factory implements FactoryInterface
                 $publisher = new Publisher(new UdpTransport($graylog_host, $graylog_port));
                 $handler = new GelfHandler($publisher, $log_level);
                 $formatter = new GelfMessageFormatter(null, null, '');
-
-                $split_strings_in_chunks = 32766;
 
                 break;
             case LoggerInterface::BLACKHOLE:
@@ -87,37 +134,22 @@ class Factory implements FactoryInterface
         $handler->setFormatter($formatter);
         $handler->pushProcessor(new PsrLogMessageProcessor());
 
-        $monolog_logger->pushHandler($handler);
-
-        $logger = new Logger($monolog_logger, new AppEnv($app_name, $app_version, $app_env, $this->getAdditionalEvnArguments()));
-        foreach ($this->getExceptionSerializers() as $exception_serializer) {
-            $logger->addExceptionSerializer($exception_serializer);
-        }
-
-        if ($split_strings_in_chunks) {
-            $logger->setSplitStringsInChunks($split_strings_in_chunks);
-        }
-
-        return $logger;
+        return $this->createWithHandlers(
+            $app_name,
+            $app_version,
+            $app_env,
+            $handler
+        );
     }
 
-    /**
-     * @var array
-     */
-    private $additional_evn_arguments = [];
+    private array $additional_evn_arguments = [];
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getAdditionalEvnArguments()
+    public function getAdditionalEnvArguments(): array
     {
         return $this->additional_evn_arguments;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function &setAdditionalEnvArguments(array $args)
+    public function setAdditionalEnvArguments(array $args): FactoryInterface
     {
         $this->additional_evn_arguments = $args;
 

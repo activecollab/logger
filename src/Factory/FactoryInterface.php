@@ -9,41 +9,39 @@
  * with this source code in the file LICENSE.
  */
 
+declare(strict_types=1);
+
 namespace ActiveCollab\Logger\Factory;
 
 use ActiveCollab\Logger\ExceptionSerializers\ExceptionSerializersInterface;
 use ActiveCollab\Logger\LoggerInterface;
+use Monolog\Handler\HandlerInterface;
 
-/**
- * @package ActiveCollab\Logger
- */
 interface FactoryInterface extends ExceptionSerializersInterface
 {
-    /**
-     * Create and configure a new logger instance.
-     *
-     * @param  string          $app_name
-     * @param  string          $app_version
-     * @param  string          $app_env
-     * @param  int             $log_level
-     * @param  string          $logger_type
-     * @param  array           $logger_arguments
-     * @return LoggerInterface
-     */
-    public function create($app_name, $app_version, $app_env, $log_level, $logger_type, ...$logger_arguments);
+    public function createWithHandlers(
+        string $app_name,
+        string $app_version,
+        string $app_env,
+        HandlerInterface ...$handlers
+    ): LoggerInterface;
+
+    public function create(
+        string $app_name,
+        string $app_version,
+        string $app_env,
+        int $log_level,
+        string $logger_type,
+        ...$logger_arguments
+    ): LoggerInterface;
 
     /**
      * Return a list of additional environment variables.
-     *
-     * @return array
      */
-    public function getAdditionalEvnArguments();
+    public function getAdditionalEnvArguments(): array;
 
     /**
      * Set a list of environment variables that will be appended to the standard set of environment variables.
-     *
-     * @param  array $args
-     * @return $this
      */
-    public function &setAdditionalEnvArguments(array $args);
+    public function setAdditionalEnvArguments(array $args): FactoryInterface;
 }

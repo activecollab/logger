@@ -15,11 +15,12 @@
         }
     ],
     "require": {
-        "php": ">=7.1",
+        "php": ">=8.0",
         "monolog/monolog": "^1.17",
         "psr/http-message": "^1.0"
     },
     "require-dev": {
+        "ext-json": "*",
         "friendsofphp/php-cs-fixer": "^2.0",
         "graylog2/gelf-php": "^1.4",
         "phpunit/phpunit": "^9.0",

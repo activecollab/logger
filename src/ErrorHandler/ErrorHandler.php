@@ -111,7 +111,13 @@ class ErrorHandler implements ErrorHandlerInterface
      */
     public function handleError($errno, $errstr, $errfile, $errline)
     {
-        $context = ['message' => $errstr, 'code' => $errno, 'file' => $errfile, 'line' => $errline, 'trace' => (new RuntimeException('Getting trace'))->getTraceAsString()];
+        $context = [
+            'message' => $errstr,
+            'code' => $errno,
+            'file' => $errfile,
+            'line' => $errline,
+            'trace' => (new RuntimeException('Getting trace'))->getTraceAsString(),
+        ];
 
         switch ($this->getHowToHandleError($errno)) {
             case self::SILENCE:
