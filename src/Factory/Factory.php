@@ -96,11 +96,11 @@ class Factory implements FactoryInterface
                 $log_file_permissions = empty($logger_arguments[2]) ? 0644 : $logger_arguments[2];
 
                 if (empty($log_dir)) {
-                    throw new InvalidArgumentException('Log directory argument is required');
+                    throw new InvalidArgumentException('Log directory argument is required.');
                 }
 
                 if (!is_writable($log_dir)) {
-                    throw new RuntimeException("We can't write logs to '$log_dir'");
+                    throw new RuntimeException(sprintf("We can't write logs to '%s'.", $log_dir));
                 }
 
                 $handler = new RotatingFileHandler(
@@ -128,7 +128,9 @@ class Factory implements FactoryInterface
                 $handler = new TestHandler();
                 break;
             default:
-                throw new InvalidArgumentException("Unknown logger type '$logger_type'");
+                throw new InvalidArgumentException(
+                    sprintf("Unknown logger type '%s'.", $logger_type)
+                );
         }
 
         $handler->setFormatter($formatter);
