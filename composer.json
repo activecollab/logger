@@ -22,7 +22,7 @@
     "require-dev": {
         "ext-json": "*",
         "friendsofphp/php-cs-fixer": "^2.0",
-        "graylog2/gelf-php": "^1.4",
+        "graylog2/gelf-php": "^1.4.2||^2.0",
         "phpunit/phpunit": "^9.0",
         "laminas/laminas-diactoros": "^2.0"
     },
